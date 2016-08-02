@@ -5,7 +5,7 @@ let HtmlResWebpackPlugin = require('html-res-webpack-plugin');
 let CopyWebpackPlugin = require('copy-webpack-plugin-hash');
 let CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 //let AssetsPlugin = require('assets-webpack-plugin');
-let HappyPack = require('happypack');
+//let HappyPack = require('happypack');
 let autoprefixer = require('autoprefixer');
 let path = require('path');
 let glob = require('glob');
@@ -43,10 +43,10 @@ module.exports = function(options) {
             /**new webpack.ProvidePlugin({
 			common: 'common'
 		}),**/
-            new HappyPack({
-                // loaders is the only required parameter:
-                loaders: ['babel?cacheDirectory&plugins[]=transform-runtime&presets[]=es2015-webpack'],
-            }),
+//            new HappyPack({
+//                // loaders is the only required parameter:
+//                loaders: ['babel?cacheDirectory&plugins[]=transform-runtime&presets[]=es2015-webpack'],
+//            }),
             new webpack.DefinePlugin({
                 __DEBUG__: !isProd,
                 __PROD__: isProd
@@ -94,11 +94,13 @@ module.exports = function(options) {
                 loader: "jshint-loader",
                 exclude: /node_modules/
             }] : [],
-			loaders: [{
-				test: /\.js$/,
-				loader: 'happypack/loader',
-				exclude: /node_modules/
-			},{
+			loaders: [
+//				{
+//				test: /\.js$/,
+//				loader: 'happypack/loader',
+//				exclude: /node_modules/
+//			},
+			{
                 test: /\.html$/,
                 loader: 'html'
             }, {

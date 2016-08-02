@@ -8,6 +8,7 @@ console.log('model:',model);
 console.log('template:',template);
 //console.log('common:',common);
 //console.log('test:',test);
+
 $(function(){
 	$(document.body).append(template);
 });
