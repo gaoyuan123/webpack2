@@ -1,0 +1,9 @@
+{
+	"buildPath": "./build/",
+	"srcPath": "./src/",
+	"publicPath": "/",
+	"libsPath": "libs/",
+	"commonEntry": "common/common.entry.js",
+	"components": "components/**/*.entry.js",
+	"entrys": "**/*.entry.js"
+}

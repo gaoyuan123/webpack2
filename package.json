@@ -1,0 +1,58 @@
+{
+  "name": "webpack",
+  "version": "0.0.1",
+  "description": "",
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "repository": "",
+  "license": "MIT",
+  "main": "",
+  "scripts": {
+    "start": "webpack-dev-server --hot --host 0.0.0.0 --port 8000",
+    "build": "rm -rf build/ && webpack --progress -p --env.resinline --env.prod",
+    "buildoffline": "rm -rf build/ && webpack --progress -p  --env.prod",
+    "server": "http-server ./build -o"
+  },
+  "author": {
+    "name": "高原",
+    "email": "gaoyuanzlz@gmail.com",
+    "url": ""
+  },
+  "files": [],
+  "keywords": [
+    "webpack"
+  ],
+  "devDependencies": {
+    "glob": "*",
+    "webpack": "^2.1.0-beta.20",
+    "webpack-dev-server": "*",
+    "http-server": "*",
+    "happypack": "*",
+    "html-res-webpack-plugin": "git+https://github.com/gaoyuan123/html-res-webpack-plugin.git",
+    "extract-text-webpack-plugin": "^2.0.0-beta.3",
+    "copy-webpack-plugin-hash": "*",
+    "assets-webpack-plugin": "*",
+    "babel-plugin-transform-runtime": "^6.12.0",
+
+    "css-loader": "*",
+    "file-loader": "*",
+    "html-loader": "*",
+    "babel-core": "*",
+	"babel-preset-es2015":"*",
+    "babel-loader": "*",
+    "image-webpack-loader": "*",
+    "jshint": "*",
+    "jshint-loader": "*",
+    "node-sass": "*",
+    "autoprefixer": "*",
+    "postcss-loader": "*",
+    "sass-loader": "*",
+    "style-loader": "*",
+    "url-loader": "*"
+
+  },
+  "dependencies": {
+    "scriptjs": "^2.5.8"
+  }
+}
