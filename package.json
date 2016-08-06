@@ -10,8 +10,7 @@
   "main": "",
   "scripts": {
     "start": "webpack-dev-server --host 0.0.0.0 --port 8000",
-    "build": "rm -rf build/ && webpack --progress -p --env.resinline --env.prod",
-    "buildoffline": "rm -rf build/ && webpack --progress -p  --env.prod",
+    "build": "rm -rf build/ && webpack --progress -p --env.resinline --env.prod && webpack --progress -p  --env.prod",
     "server": "http-server ./build -o"
   },
   "author": {
