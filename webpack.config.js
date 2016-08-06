@@ -65,7 +65,7 @@ module.exports = function(options) {
             // 相对路径会在每一层父级目录中查找（类似 node_modules）。
             // 绝对路径会直接查找。
             // 将按你指定的顺序查找。
-            modules: [srcPath],
+            modules: [srcPath,path.resolve('node_modules')],
             extensions: ['.js', '.css', '.scss', '.json', '.html'],
             alias: {} //别名，配置后可以通过别名导入模块
         },
