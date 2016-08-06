@@ -9,7 +9,7 @@
   "license": "MIT",
   "main": "",
   "scripts": {
-    "start": "webpack-dev-server --hot --host 0.0.0.0 --port 8000",
+    "start": "webpack-dev-server --host 0.0.0.0 --port 8000",
     "build": "rm -rf build/ && webpack --progress -p --env.resinline --env.prod",
     "buildoffline": "rm -rf build/ && webpack --progress -p  --env.prod",
     "server": "http-server ./build -o"
@@ -26,7 +26,7 @@
   "devDependencies": {
     "glob": "*",
     "webpack": "^2.1.0-beta.20",
-    "webpack-dev-server": "*",
+    "webpack-dev-server": "^2.1.0-beta.0",
     "http-server": "*",
     "happypack": "*",
     "html-res-webpack-plugin": "git+https://github.com/gaoyuan123/html-res-webpack-plugin.git",
@@ -34,12 +34,11 @@
     "copy-webpack-plugin-hash": "*",
     "assets-webpack-plugin": "*",
     "babel-plugin-transform-runtime": "^6.12.0",
-
     "css-loader": "*",
     "file-loader": "*",
     "html-loader": "*",
     "babel-core": "*",
-	"babel-preset-es2015-webpack":"*",
+    "babel-preset-es2015-webpack": "*",
     "babel-loader": "*",
     "image-webpack-loader": "*",
     "jshint": "*",
@@ -50,7 +49,6 @@
     "sass-loader": "*",
     "style-loader": "*",
     "url-loader": "*"
-
   },
   "dependencies": {
     "scriptjs": "^2.5.8"

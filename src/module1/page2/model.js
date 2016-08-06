@@ -1,7 +1,4 @@
-define(function(require,exports,module){
-	module.exports = {
-		name:'高原',
-		age:30,
-		sex:'男'
-	}
-})
+var name = '高原';
+var age = 30;
+var sex = '男';
+export {name, age,sex};
