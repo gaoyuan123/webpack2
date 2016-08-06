@@ -41,8 +41,8 @@ module.exports = function(options) {
         plugins: [
             //代码中直接使用common变量，编译时会自动require('common')
             /**new webpack.ProvidePlugin({
-			common: 'common'
-		}),**/
+				common: 'common'
+			}),**/
 //            new HappyPack({
 //                // loaders is the only required parameter:
 //                loaders: ['babel?cacheDirectory&plugins[]=transform-runtime&presets[]=es2015-webpack'],
@@ -180,12 +180,12 @@ module.exports = function(options) {
         cwd: srcPath
     }).forEach(function(entryPath) {
         let aliaName = path.basename(entryPath, '.entry.js');
-        let entryName = commonEntryName = path.dirname(entryPath) + '/' + aliaName;
+        commonEntryName = path.dirname(entryPath) + '/' + aliaName;
         config.resolve.alias[aliaName] = entryPath;
-        config.entry[entryName] = [entryPath];
+        config.entry[commonEntryName] = [entryPath];
         //打包公共模块
         config.plugins.push(new CommonsChunkPlugin({
-            name: entryName,
+            name: commonEntryName,
             filename: isProd ? '[name].[chunkhash:8].js' : '[name].js'
         }))
         log(entryPath);
