@@ -106,7 +106,7 @@ module.exports = function(options) {
                 loader: isProd ? ExtractTextPlugin.extract({
                     fallbackLoader: "style",
                     loader: "css!postcss!sass"
-                }) : 'style!css!postcss!sass'
+                }) : 'style!css?sourceMap!postcss!sass'
             }, {
                 test: /\.css$/,
                 loader: isProd ? ExtractTextPlugin.extract({
