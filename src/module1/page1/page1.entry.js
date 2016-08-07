@@ -1,4 +1,4 @@
-
+if(__DEBUG__)require('./page1.html');
 require('./style.scss');
 var $ = require('zepto');
 var model = require('./model.js');

@@ -1,3 +1,4 @@
+if(__DEBUG__)require('./page2.html');
 import './style.scss';
 import sayHello,{name,age} from './model.js';
 import template from './_list.html';
