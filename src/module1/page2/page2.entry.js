@@ -1,14 +1,15 @@
 if(__DEBUG__)require('./page2.html');
 import './style.scss';
-import sayHello,{name,age} from './model.js';
+import helloModel,{name,age} from './model.js';
 import template from './_list.html';
-import common from 'common';
-
+import helloCommon,{test} from 'common';
+import sidebar from 'sidebar';
 console.log('model.name:',name);
 console.log('model.age:',age);
-sayHello();
+helloCommon();
+helloModel();
 console.log('template:',template);
-console.log('common:',common);
+console.log('common.test:',test);
 
 $(()=>{
 	$(document.body).append(template);
@@ -20,4 +21,4 @@ document.addEventListener('click',() =>{
 	});
 });
 
-	
+

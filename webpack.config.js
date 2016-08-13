@@ -182,7 +182,9 @@ module.exports = function (options) {
     });
     //打包公共模块
     config.plugins.push(new CommonsChunkPlugin({
-        name: commonEntryName
+        name: commonEntryName,
+        //number|Infinity|function(module, count) -> boolean
+        minChunks: isProd ? Infinity : 2
     }));
 
     log('\r\n =============================================');
