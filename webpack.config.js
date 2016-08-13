@@ -20,7 +20,7 @@ let srcPath = path.resolve(projectConfig.srcPath);
 //第三方库
 let externals = require(projectConfig.srcPath + projectConfig.libsPath + 'externals.config.json');
 
-module.exports = function(options) {
+module.exports = function (options) {
     options = options || {};
     log('=============================================');
     log('cli options:' + JSON.stringify(options));
@@ -32,7 +32,7 @@ module.exports = function(options) {
         context: srcPath,
         entry: {},
         output: {
-            path: path.resolve(projectConfig.buildPath,resInline?'inline':'link'),
+            path: path.resolve(projectConfig.buildPath, resInline ? 'inline' : 'link'),
             publicPath: projectConfig.publicPath,
             filename: isProd ? '[name].[chunkhash:8].js' : '[name].js',
             chunkFilename: isProd ? 'chunk/[chunkhash:8].chunk.js' : 'chunk/[name].chunk.js',
@@ -40,7 +40,7 @@ module.exports = function(options) {
         },
         plugins: [
             //代码中直接使用common变量，编译时会自动require('common')
-            /**new webpack.ProvidePlugin({
+        /**new webpack.ProvidePlugin({
 				common: 'common'
 			}),**/
             new HappyPack({
@@ -65,7 +65,7 @@ module.exports = function(options) {
             // 相对路径会在每一层父级目录中查找（类似 node_modules）。
             // 绝对路径会直接查找。
             // 将按你指定的顺序查找。
-            modules: [srcPath,path.resolve('node_modules')],
+            modules: [srcPath, path.resolve('node_modules')],
             extensions: ['.js', '.css', '.scss', '.json', '.html'],
             alias: {} //别名，配置后可以通过别名导入模块
         },
@@ -86,9 +86,7 @@ module.exports = function(options) {
             port: 8000
         },
         module: {
-            noParse: [
-                'node_modules'
-            ],
+            noParse: [],
             preLoaders: isProd ? [{
                 test: /\.js$/,
                 loader: "jshint-loader",
@@ -124,7 +122,7 @@ module.exports = function(options) {
                 ] : ['file?name=[path][name].[ext]']
             }]
         },
-        postcss: function() {
+        postcss: function () {
             return [autoprefixer({
                 browsers: ['Android 4', 'iOS 7']
             })];
@@ -153,7 +151,6 @@ module.exports = function(options) {
     };
 
 
-
     //发布时加载插件
     isProd && config.plugins.push(
         new webpack.NoErrorsPlugin(),
@@ -173,28 +170,27 @@ module.exports = function(options) {
 
     log('=============================================');
     log('查找到common入口文件：');
-    let commonEntryName;
+    let commonEntryName = 'common/common';
     projectConfig.commonEntry && glob.sync(projectConfig.commonEntry, {
         cwd: srcPath
-    }).forEach(function(entryPath) {
+    }).forEach(function (entryPath) {
         let aliaName = path.basename(entryPath, '.entry.js');
         commonEntryName = path.dirname(entryPath) + '/' + aliaName;
         config.resolve.alias[aliaName] = entryPath;
         config.entry[commonEntryName] = [entryPath];
-        //打包公共模块
-        config.plugins.push(new CommonsChunkPlugin({
-            name: commonEntryName,
-            filename: isProd ? '[name].[chunkhash:8].js' : '[name].js'
-        }))
         log(entryPath);
     });
+    //打包公共模块
+    config.plugins.push(new CommonsChunkPlugin({
+        name: commonEntryName
+    }));
 
     log('\r\n =============================================');
     log('查找到components入口文件：');
 
     projectConfig.components && glob.sync(projectConfig.components, {
         cwd: srcPath
-    }).forEach(function(entryPath) {
+    }).forEach(function (entryPath) {
         let aliaName = path.basename(entryPath, '.entry.js');
         config.resolve.alias[aliaName] = entryPath;
         log(entryPath);
@@ -206,14 +202,14 @@ module.exports = function(options) {
     log('查找到page入口文件：');
     let entryConfig = {
         inline: { // inline or not for index chunk
-            js: !! resInline,
-            css: !! resInline
+            js: !!resInline,
+            css: !!resInline
         }
     }
 
     glob.sync(projectConfig.entrys, {
         cwd: srcPath
-    }).forEach(function(entryPath) {
+    }).forEach(function (entryPath) {
         let aliaName = path.basename(entryPath, '.entry.js');
         let entryName = path.dirname(entryPath) + '/' + aliaName;
         if (!config.resolve.alias[aliaName]) {
@@ -221,7 +217,7 @@ module.exports = function(options) {
             let chunks = {
                 'libs/zepto': null
             };
-            if (commonEntryName) chunks[commonEntryName] = null;
+            chunks[commonEntryName] = null;
             chunks[entryName] = entryConfig;
             //加载html生成插件
             config.plugins.push(new HtmlResWebpackPlugin({
