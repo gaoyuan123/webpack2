@@ -27,6 +27,7 @@ module.exports = function (options) {
     let resInline = options.resinline;
     let isProd = options.prod;
     let isDll = options.dll;
+    let isDllref = options.dllref;
     let isDev = !isDll && !isProd;
 
     let config = {
@@ -82,7 +83,7 @@ module.exports = function (options) {
             let chunks = {
                 'libs/zepto': null,
             };
-            if (isDev) {
+            if (isDllref) {
                 chunks['common/common.dll'] = null;
             }
             chunks[commonEntryName] = null;
@@ -138,7 +139,7 @@ module.exports = function (options) {
             new CopyWebpackPlugin([{
                 from: projectConfig.libsPath,
                 to: projectConfig.libsPath
-            }].concat(isDev ? [{
+            }].concat(isDllref ? [{
                 from: path.resolve(projectConfig.buildPath, 'dll', commonEntryName + '.dll.js'),
                 to: commonEntryName + '.dll.js'
             }] : []), {
@@ -155,7 +156,7 @@ module.exports = function (options) {
                 path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
                 name: "common_dll"
             })
-        ] : []).concat(isDev ? [
+        ] : []).concat(isDllref ? [
             new webpack.DllReferencePlugin({
                 context: srcPath,
                 manifest: require(projectConfig.buildPath + 'dll/' + commonEntryName + '-manifest.json'),
