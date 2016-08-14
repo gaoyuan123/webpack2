@@ -26,16 +26,94 @@ module.exports = function (options) {
     log('cli options:' + JSON.stringify(options));
     let resInline = options.resinline;
     let isProd = options.prod;
+    let isDll = options.dll;
+    let isDev = !isDll && !isProd;
 
     let config = {
+        entry: {},
+        resolve: {
+            alias: {}
+        },
+        plugins: []
+    }
+
+    log('=============================================');
+    log('查找到common入口文件：');
+    let commonEntryName = 'common/common';
+    projectConfig.commonEntry && glob.sync(projectConfig.commonEntry, {
+        cwd: srcPath
+    }).forEach(function (entryPath) {
+        let aliaName = path.basename(entryPath, '.entry.js');
+        commonEntryName = path.dirname(entryPath) + '/' + aliaName;
+        config.resolve.alias[aliaName] = entryPath;
+        config.entry[commonEntryName] = [entryPath];
+        log(entryPath);
+    });
+
+    log('\r\n =============================================');
+    log('查找到components入口文件：');
+
+    projectConfig.components && glob.sync(projectConfig.components, {
+        cwd: srcPath
+    }).forEach(function (entryPath) {
+        let aliaName = path.basename(entryPath, '.entry.js');
+        config.resolve.alias[aliaName] = entryPath;
+        log(entryPath);
+    });
+
+
+    //读取page配置文件
+    log('\r\n =============================================');
+    log('查找到page入口文件：');
+    let entryConfig = {
+        inline: { // inline or not for index chunk
+            js: !!resInline,
+            css: !!resInline
+        }
+    }
+
+    glob.sync(projectConfig.entrys, {
+        cwd: srcPath
+    }).forEach(function (entryPath) {
+        let aliaName = path.basename(entryPath, '.entry.js');
+        let entryName = path.dirname(entryPath) + '/' + aliaName;
+        if (!config.resolve.alias[aliaName]) {
+            config.entry[entryName] = [entryPath];
+            let chunks = {
+                'libs/zepto': null,
+            };
+            if (isDev) {
+                chunks['common/common.dll'] = null;
+            }
+            chunks[commonEntryName] = null;
+            chunks[entryName] = entryConfig;
+            //加载html生成插件
+            config.plugins.push(new HtmlResWebpackPlugin({
+                filename: entryName + '.html',
+                template: path.join(srcPath, entryName + '.html'),
+                htmlMinify: isProd ? {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    //                removeAttributeQuotes: true
+                } : false,
+                chunks: chunks,
+            }));
+            log(entryPath);
+        }
+    });
+
+    log('\r\n =============================================');
+
+    return {
         //entry配置项的根目录（绝对路径）
         context: srcPath,
-        entry: {},
+        entry: config.entry,
         output: {
-            path: path.resolve(projectConfig.buildPath, resInline ? 'inline' : 'link'),
+            path: path.resolve(projectConfig.buildPath, isDll ? 'dll' : resInline ? 'inline' : 'link'),
             publicPath: projectConfig.publicPath,
-            filename: isProd ? '[name].[chunkhash:8].js' : '[name].js',
+            filename: isDll ? '[name].dll.js' : isProd ? '[name].[chunkhash:8].js' : '[name].js',
             chunkFilename: isProd ? 'chunk/[chunkhash:8].chunk.js' : 'chunk/[name].chunk.js',
+            library: isDll ? 'common_dll' : null,
             //libraryTarget: 'umd',
         },
         plugins: [
@@ -51,15 +129,39 @@ module.exports = function (options) {
                 __DEBUG__: !isProd,
                 __PROD__: isProd
             }),
+            new CommonsChunkPlugin({
+                name: commonEntryName,
+                //number|Infinity|function(module, count) -> boolean
+                minChunks: isProd ? Infinity : 2
+            }),
             //copy libs
             new CopyWebpackPlugin([{
                 from: projectConfig.libsPath,
                 to: projectConfig.libsPath
-            }], {
+            }].concat(isDev ? [{
+                from: path.resolve(projectConfig.buildPath, 'dll', commonEntryName + '.dll.js'),
+                to: commonEntryName + '.dll.js'
+            }] : []), {
                 ignore: ['*.json'],
                 namePattern: isProd ? '[name]-[contenthash:6].js' : '[name].js'
             })
-        ],
+        ].concat(config.plugins).concat(isProd ? [
+            new webpack.NoErrorsPlugin(),
+            new webpack.optimize.DedupePlugin(),
+            //css单独打包
+            new ExtractTextPlugin('[name].[contenthash:8].css')
+        ] : []).concat(isDll ? [
+            new webpack.DllPlugin({
+                path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
+                name: "common_dll"
+            })
+        ] : []).concat(isDev ? [
+            new webpack.DllReferencePlugin({
+                context: srcPath,
+                manifest: require(projectConfig.buildPath + 'dll/' + commonEntryName + '-manifest.json'),
+                sourceType: "var",
+            })
+        ] : []),
         resolve: {
             // 模块查找路径：指定解析器查找模块的目录。
             // 相对路径会在每一层父级目录中查找（类似 node_modules）。
@@ -67,12 +169,12 @@ module.exports = function (options) {
             // 将按你指定的顺序查找。
             modules: [srcPath, path.resolve('node_modules')],
             extensions: ['.js', '.css', '.scss', '.json', '.html'],
-            alias: {} //别名，配置后可以通过别名导入模块
+            alias: config.resolve.alias //别名，配置后可以通过别名导入模块
         },
         //第三方包独立打包，用来配置无module.exports的第三方库，require('zepto')时会自动导出module.exports = Zepto;
         externals: externals,
         //ExtractTextPlugin导出css生成sourcemap必须 devtool: 'source-map'且css?sourceMap
-        devtool: isProd ? '' : 'cheap-source-map',
+        devtool: isProd ? null : 'cheap-source-map',
         //server配置
         devServer: {
             //contentBase: srcPath,
@@ -150,94 +252,7 @@ module.exports = function (options) {
         },
     };
 
-
-    //发布时加载插件
-    isProd && config.plugins.push(
-        new webpack.NoErrorsPlugin(),
-        new webpack.optimize.DedupePlugin(),
-        //css单独打包
-        new ExtractTextPlugin('[name].[contenthash:8].css')
-        //        new AssetsPlugin({
-        //            filename: 'build/assets-map.json',
-        //            update: true,
-        //            prettyPrint: true
-        //        })
-    )
-
     function log(msg) {
         console.log(' ' + msg);
     }
-
-    log('=============================================');
-    log('查找到common入口文件：');
-    let commonEntryName = 'common/common';
-    projectConfig.commonEntry && glob.sync(projectConfig.commonEntry, {
-        cwd: srcPath
-    }).forEach(function (entryPath) {
-        let aliaName = path.basename(entryPath, '.entry.js');
-        commonEntryName = path.dirname(entryPath) + '/' + aliaName;
-        config.resolve.alias[aliaName] = entryPath;
-        config.entry[commonEntryName] = [entryPath];
-        log(entryPath);
-    });
-    //打包公共模块
-    config.plugins.push(new CommonsChunkPlugin({
-        name: commonEntryName,
-        //number|Infinity|function(module, count) -> boolean
-        minChunks: isProd ? Infinity : 2
-    }));
-
-    log('\r\n =============================================');
-    log('查找到components入口文件：');
-
-    projectConfig.components && glob.sync(projectConfig.components, {
-        cwd: srcPath
-    }).forEach(function (entryPath) {
-        let aliaName = path.basename(entryPath, '.entry.js');
-        config.resolve.alias[aliaName] = entryPath;
-        log(entryPath);
-    });
-
-
-    //读取page配置文件
-    log('\r\n =============================================');
-    log('查找到page入口文件：');
-    let entryConfig = {
-        inline: { // inline or not for index chunk
-            js: !!resInline,
-            css: !!resInline
-        }
-    }
-
-    glob.sync(projectConfig.entrys, {
-        cwd: srcPath
-    }).forEach(function (entryPath) {
-        let aliaName = path.basename(entryPath, '.entry.js');
-        let entryName = path.dirname(entryPath) + '/' + aliaName;
-        if (!config.resolve.alias[aliaName]) {
-            config.entry[entryName] = [entryPath];
-            let chunks = {
-                'libs/zepto': null
-            };
-            chunks[commonEntryName] = null;
-            chunks[entryName] = entryConfig;
-            //加载html生成插件
-            config.plugins.push(new HtmlResWebpackPlugin({
-                filename: entryName + '.html',
-                template: path.join(srcPath, entryName + '.html'),
-                htmlMinify: isProd ? {
-                    removeComments: true,
-                    collapseWhitespace: true,
-                    //                removeAttributeQuotes: true
-                } : false,
-                chunks: chunks,
-            }));
-            log(entryPath);
-        }
-    });
-
-    log('\r\n =============================================');
-
-    //导出配置
-    return config;
 }
