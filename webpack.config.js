@@ -130,7 +130,7 @@ module.exports = function (options) {
             new CommonsChunkPlugin({
                 name: commonEntryName,
                 //number|Infinity|function(module, count) -> boolean
-                minChunks: isProd ? Infinity : 2
+                minChunks: isDev ? 2 : Infinity
             }),
             //copy libs
             new CopyWebpackPlugin([{
