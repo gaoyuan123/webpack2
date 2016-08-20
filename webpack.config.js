@@ -17,9 +17,6 @@ let glob = require('glob');
 let projectConfig = require('./project.config.json');
 let srcPath = path.resolve(projectConfig.srcPath);
 
-//第三方库
-let externals = require(projectConfig.srcPath + projectConfig.libsPath + 'externals.config.json');
-
 module.exports = function (options) {
     options = options || {};
     log('=============================================');
@@ -139,7 +136,7 @@ module.exports = function (options) {
             new CopyWebpackPlugin([{
                 from: projectConfig.libsPath,
                 to: projectConfig.libsPath
-            }].concat(isDllref ? [{
+            }].concat(isDllref ? [{//dll引用
                 from: path.resolve(projectConfig.buildPath, 'dll', commonEntryName + '.dll.js'),
                 to: commonEntryName + '.dll.js'
             }] : []), {
@@ -151,12 +148,12 @@ module.exports = function (options) {
             new webpack.optimize.DedupePlugin(),
             //css单独打包
             new ExtractTextPlugin('[name].[contenthash:8].css')
-        ] : []).concat(isDll ? [
+        ] : []).concat(isDll ? [//dll打包
             new webpack.DllPlugin({
                 path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
                 name: "common_dll"
             })
-        ] : []).concat(isDllref ? [
+        ] : []).concat(isDllref ? [//dll引用
             new webpack.DllReferencePlugin({
                 context: srcPath,
                 manifest: require(projectConfig.buildPath + 'dll/' + commonEntryName + '-manifest.json'),
@@ -173,7 +170,7 @@ module.exports = function (options) {
             alias: config.resolve.alias //别名，配置后可以通过别名导入模块
         },
         //第三方包独立打包，用来配置无module.exports的第三方库，require('zepto')时会自动导出module.exports = Zepto;
-        externals: externals,
+        externals: projectConfig.externals,
         //ExtractTextPlugin导出css生成sourcemap必须 devtool: 'source-map'且css?sourceMap
         devtool: isProd ? null : 'cheap-source-map',
         //server配置
