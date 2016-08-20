@@ -190,12 +190,12 @@ module.exports = function (options) {
             preLoaders: isProd ? [{
                 test: /\.js$/,
                 loader: "jshint-loader",
-                exclude: /node_modules/
+                include: [srcPath]
             }] : [],
             loaders: [{
                 test: /\.js$/,
                 loader: 'happypack/loader',
-                exclude: /node_modules/
+                include: [srcPath]
             }, {
                 test: /\.html$/,
                 loader: 'html'
