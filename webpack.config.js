@@ -25,6 +25,7 @@ module.exports = function (options) {
     let isProd = options.prod;
     let isDll = options.dll;
     let isDllref = options.dllref;
+    let isHappy = options.isHappy;
     let isDev = !isDll && !isProd;
 
     let config = {
@@ -116,13 +117,10 @@ module.exports = function (options) {
         },
         plugins: [
             //代码中直接使用common变量，编译时会自动require('common')
-        /**new webpack.ProvidePlugin({
+            /**new webpack.ProvidePlugin({
 				common: 'common'
 			}),**/
-            new HappyPack({
-                // loaders is the only required parameter:
-                loaders: ['babel?cacheDirectory&plugins[]=transform-runtime&presets[]=es2015-webpack'],
-            }),
+            //new webpack.NoErrorsPlugin(),
             new webpack.DefinePlugin({
                 __DEBUG__: !isProd,
                 __PROD__: isProd
@@ -140,11 +138,9 @@ module.exports = function (options) {
                 from: path.resolve(projectConfig.buildPath, 'dll', commonEntryName + '.dll.js'),
                 to: commonEntryName + '.dll.js'
             }] : []), {
-                ignore: ['*.json'],
                 namePattern: isProd ? '[name]-[contenthash:6].js' : '[name].js'
             })
         ].concat(config.plugins).concat(isProd ? [
-            new webpack.NoErrorsPlugin(),
             new webpack.optimize.DedupePlugin(),
             //css单独打包
             new ExtractTextPlugin('[name].[contenthash:8].css')
@@ -159,7 +155,10 @@ module.exports = function (options) {
                 manifest: require(projectConfig.buildPath + 'dll/' + commonEntryName + '-manifest.json'),
                 sourceType: "var",
             })
-        ] : []),
+        ] : []).concat(isHappy ? [new HappyPack({
+            // loaders is the only required parameter:
+            loaders: ['babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : '')],
+        })] : []),
         resolve: {
             // 模块查找路径：指定解析器查找模块的目录。
             // 相对路径会在每一层父级目录中查找（类似 node_modules）。
@@ -194,7 +193,7 @@ module.exports = function (options) {
             }] : [],
             loaders: [{
                 test: /\.js$/,
-                loader: 'happypack/loader',
+                loader: isHappy ? 'happypack/loader' : 'babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : ''),
                 include: [srcPath]
             }, {
                 test: /\.html$/,
