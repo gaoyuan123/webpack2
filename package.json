@@ -26,7 +26,7 @@
   ],
   "devDependencies": {
     "glob": "*",
-    "webpack": "^2.1.0-beta.20",
+    "webpack": "^2.1.0-beta.25",
     "webpack-dev-server": "^2.0.0-beta",
     "http-server": "*",
     "happypack": "*",

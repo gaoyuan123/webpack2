@@ -112,7 +112,7 @@ module.exports = function (options) {
             publicPath: projectConfig.publicPath,
             filename: isDll ? '[name].dll.js' : isProd ? '[name].[chunkhash:8].js' : '[name].js',
             chunkFilename: isProd ? 'chunk/[chunkhash:8].chunk.js' : 'chunk/[name].chunk.js',
-            library: isDll ? 'common_dll' : null,
+            library: isDll ? 'common_dll' : 'common',
             //libraryTarget: 'umd',
         },
         plugins: [
@@ -143,7 +143,41 @@ module.exports = function (options) {
         ].concat(config.plugins).concat(isProd ? [
             new webpack.optimize.DedupePlugin(),
             //css单独打包
-            new ExtractTextPlugin('[name].[contenthash:8].css')
+            new ExtractTextPlugin('[name].[contenthash:8].css'),
+			new webpack.LoaderOptionsPlugin({
+			    test: /\.js$/, // may apply this only for some modules
+			    options: {
+				 jshint:{
+					esversion: 6,
+					// any jshint option http://www.jshint.com/docs/options/
+					// i. e.
+					camelcase: true,
+
+					// jshint errors are displayed by default as warnings
+					// set emitErrors to true to display them as errors
+					emitErrors: false,
+
+					// jshint to not interrupt the compilation
+					// if you want any file with jshint errors to fail
+					// set failOnHint to true
+					failOnHint: false,
+					asi: true,
+					boss: true,
+					curly: true,
+					expr: true,
+					//        undef: true,
+					unused: true
+				}
+			   }
+			}),
+			new webpack.LoaderOptionsPlugin({
+			    test: /\.scss$/, // may apply this only for some modules
+			    options: {
+				 postcss:[autoprefixer({
+					browsers: ['Android 4', 'iOS 7']
+				})]
+			   }
+			})
         ] : []).concat(isDll ? [//dll打包
             new webpack.DllPlugin({
                 path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
@@ -186,11 +220,13 @@ module.exports = function (options) {
         },
         module: {
             noParse: [],
-            preLoaders: isProd ? [{
-                test: /\.js$/,
-                loader: "jshint-loader",
-                include: [srcPath]
-            }] : [],
+			rules: isProd ? [{
+				enforce: 'pre',
+				test: /\.js?$/,
+				loader: 'jshint',
+				include: [srcPath]
+			  }
+			] : [],
             loaders: [{
                 test: /\.js$/,
                 loader: isHappy ? 'happypack/loader' : 'babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : ''),
@@ -220,33 +256,7 @@ module.exports = function (options) {
                     'image-webpack?bypassOnDebug&optimizationLevel=5&interlaced=false'
                 ] : ['file?name=[path][name].[ext]']
             }]
-        },
-        postcss: function () {
-            return [autoprefixer({
-                browsers: ['Android 4', 'iOS 7']
-            })];
-        },
-        jshint: {
-            esversion: 6,
-            // any jshint option http://www.jshint.com/docs/options/
-            // i. e.
-            camelcase: true,
-
-            // jshint errors are displayed by default as warnings
-            // set emitErrors to true to display them as errors
-            emitErrors: false,
-
-            // jshint to not interrupt the compilation
-            // if you want any file with jshint errors to fail
-            // set failOnHint to true
-            failOnHint: false,
-            asi: true,
-            boss: true,
-            curly: true,
-            expr: true,
-            //        undef: true,
-            unused: true
-        },
+        }
     };
 
     function log(msg) {
