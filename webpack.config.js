@@ -145,6 +145,14 @@ module.exports = function (options) {
             //css单独打包
             new ExtractTextPlugin('[name].[contenthash:8].css'),
 			new webpack.LoaderOptionsPlugin({
+			    test: /\.scss$/, // may apply this only for some modules
+			    options: {
+					postcss:[autoprefixer({
+						browsers: ['Android 4', 'iOS 7']
+					})]
+			   }
+			}),
+			new webpack.LoaderOptionsPlugin({
 			    test: /\.js$/, // may apply this only for some modules
 			    options: {
 				 jshint:{
@@ -168,14 +176,6 @@ module.exports = function (options) {
 					//        undef: true,
 					unused: true
 				}
-			   }
-			}),
-			new webpack.LoaderOptionsPlugin({
-			    test: /\.scss$/, // may apply this only for some modules
-			    options: {
-				 postcss:[autoprefixer({
-					browsers: ['Android 4', 'iOS 7']
-				})]
 			   }
 			})
         ] : []).concat(isDll ? [//dll打包
@@ -220,13 +220,13 @@ module.exports = function (options) {
         },
         module: {
             noParse: [],
-			rules: isProd ? [{
+			/* rules: [{
 				enforce: 'pre',
 				test: /\.js?$/,
 				loader: 'jshint',
 				include: [srcPath]
 			  }
-			] : [],
+			], */
             loaders: [{
                 test: /\.js$/,
                 loader: isHappy ? 'happypack/loader' : 'babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : ''),
