@@ -112,7 +112,7 @@ module.exports = function (options) {
             publicPath: projectConfig.publicPath,
             filename: isDll ? '[name].dll.js' : isProd ? '[name].[chunkhash:8].js' : '[name].js',
             chunkFilename: isProd ? 'chunk/[chunkhash:8].chunk.js' : 'chunk/[name].chunk.js',
-            library: isDll ? 'common_dll' : 'common',
+            library: isDll ? 'common_dll' : '',
             //libraryTarget: 'umd',
         },
         plugins: [
@@ -152,6 +152,7 @@ module.exports = function (options) {
 					})]
 			   }
 			}),
+			/**
 			new webpack.LoaderOptionsPlugin({
 			    test: /\.js$/, // may apply this only for some modules
 			    options: {
@@ -178,6 +179,7 @@ module.exports = function (options) {
 				}
 			   }
 			})
+			**/
         ] : []).concat(isDll ? [//dll打包
             new webpack.DllPlugin({
                 path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
@@ -205,7 +207,7 @@ module.exports = function (options) {
         //第三方包独立打包，用来配置无module.exports的第三方库，require('zepto')时会自动导出module.exports = Zepto;
         externals: projectConfig.externals,
         //ExtractTextPlugin导出css生成sourcemap必须 devtool: 'source-map'且css?sourceMap
-        devtool: isProd ? null : 'cheap-source-map',
+        devtool: isProd ? '' : 'cheap-source-map',
         //server配置
         devServer: {
             //contentBase: srcPath,
