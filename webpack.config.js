@@ -17,15 +17,15 @@ let glob = require('glob');
 let projectConfig = require('./project.config.json');
 let srcPath = path.resolve(projectConfig.srcPath);
 
-module.exports = function (options) {
-    options = options || {};
+module.exports = function (env) {
+    env = env || {};
     log('=============================================');
-    log('cli options:' + JSON.stringify(options));
-    let resInline = options.resinline;
-    let isProd = options.prod;
-    let isDll = options.dll;
-    let isDllref = options.dllref;
-    let isHappy = options.isHappy;
+    log('cli options:' + JSON.stringify(env));
+    let resInline = env.resinline;
+    let isProd = env.prod;
+    let isDll = env.dll;
+    let isDllref = env.dllref;
+    let isHappy = env.isHappy;
     let isDev = !isDll && !isProd;
 
     let config = {
@@ -141,9 +141,10 @@ module.exports = function (options) {
                 namePattern: isProd ? '[name]-[contenthash:6].js' : '[name].js'
             })
         ].concat(config.plugins).concat(isProd ? [
-            new webpack.optimize.DedupePlugin(),
             //css单独打包
-            new ExtractTextPlugin('[name].[contenthash:8].css'),
+            new ExtractTextPlugin({
+				filename:'[name].[contenthash:8].css'
+			}),
 			new webpack.LoaderOptionsPlugin({
 			    test: /\.scss$/, // may apply this only for some modules
 			    options: {
@@ -193,7 +194,7 @@ module.exports = function (options) {
             })
         ] : []).concat(isHappy ? [new HappyPack({
             // loaders is the only required parameter:
-            loaders: ['babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : '')],
+            loaders: ['babel-loader?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : '')],
         })] : []),
         resolve: {
             // 模块查找路径：指定解析器查找模块的目录。
@@ -221,42 +222,58 @@ module.exports = function (options) {
             port: 8000
         },
         module: {
-            noParse: [],
-			/* rules: [{
+            rules: [
+				/**{
 				enforce: 'pre',
 				test: /\.js?$/,
-				loader: 'jshint',
+				use: ['jshint-loader'],
 				include: [srcPath]
-			  }
-			], */
-            loaders: [{
+			  },**/
+			  {
                 test: /\.js$/,
-                loader: isHappy ? 'happypack/loader' : 'babel?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : ''),
+                use: [isHappy ? 'happypack/loader' : 'babel-loader?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : '')],
                 include: [srcPath]
             }, {
                 test: /\.html$/,
-                loader: 'html'
+                use: ['html-loader']
             }, {
                 test: /\.scss$/,
-                loader: isProd ? ExtractTextPlugin.extract({
-                    fallbackLoader: "style",
-                    loader: "css!postcss!sass"
-                }) : 'style!css?sourceMap!postcss!sass'
+                use: isProd ? ExtractTextPlugin.extract({
+                    fallbackLoader: "style-loader",
+                    use: ['css-loader','postcss-loader','sass-loader']
+                }) : ['style-loader','css-loader?sourceMap','postcss-loader','sass-loader']
             }, {
                 test: /\.css$/,
-                loader: isProd ? ExtractTextPlugin.extract({
-                    fallbackLoader: "style",
-                    loader: "css"
-                }) : 'style!css'
+                use: isProd ? ExtractTextPlugin.extract({
+                    fallbackLoader: "style-loader",
+                    use: ['css-loader']
+                }) : ['style-loader','css-loader']
             }, {
                 test: /\.(woff|woff2|ttf|eot|svg)$/,
-                loader: 'file?name=[path][name].[ext]?[hash:8]'
+                use: ['file-loader?name=[path][name].[ext]?[hash:8]']
             }, {
                 test: /\.(jpe?g|png|gif|svg)$/i,
-                loaders: isProd ? [
-                    'url?limit=8192&name=[path][name].[hash:8].[ext]',
-                    'image-webpack?bypassOnDebug&optimizationLevel=5&interlaced=false'
-                ] : ['file?name=[path][name].[ext]']
+                use: isProd ? [{
+					loader: 'url-loader',
+					options:{
+						limit:8192,
+						name:'[path][name].[hash:8].[ext]'
+					}
+				},{
+					loader: 'image-webpack-loader',
+					options:{
+						bypassOnDebug:true,
+						optimizationLevel:5,
+						interlaced:false
+					}
+				}] : [{
+					loader: 'file-loader',
+					options:{
+						name:'[path][name].[ext]',
+						optimizationLevel:5,
+						interlaced:false
+					}
+				}]
             }]
         }
     };
