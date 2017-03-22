@@ -153,7 +153,7 @@ module.exports = function (env) {
 					})]
 			   }
 			}),
-			/**
+			
 			new webpack.LoaderOptionsPlugin({
 			    test: /\.js$/, // may apply this only for some modules
 			    options: {
@@ -180,7 +180,7 @@ module.exports = function (env) {
 				}
 			   }
 			})
-			**/
+			
         ] : []).concat(isDll ? [//dll打包
             new webpack.DllPlugin({
                 path: path.join(projectConfig.buildPath, 'dll', '[name]-manifest.json'),
@@ -223,12 +223,12 @@ module.exports = function (env) {
         },
         module: {
             rules: [
-				/**{
+			{
 				enforce: 'pre',
 				test: /\.js?$/,
 				use: ['jshint-loader'],
 				include: [srcPath]
-			  },**/
+			  },
 			  {
                 test: /\.js$/,
                 use: [isHappy ? 'happypack/loader' : 'babel-loader?cacheDirectory&presets[]=es2015-webpack' + (isProd ? '&plugins[]=transform-runtime' : '')],
@@ -239,13 +239,13 @@ module.exports = function (env) {
             }, {
                 test: /\.scss$/,
                 use: isProd ? ExtractTextPlugin.extract({
-                    fallbackLoader: "style-loader",
+                    fallback: "style-loader",
                     use: ['css-loader','postcss-loader','sass-loader']
                 }) : ['style-loader','css-loader?sourceMap','postcss-loader','sass-loader']
             }, {
                 test: /\.css$/,
                 use: isProd ? ExtractTextPlugin.extract({
-                    fallbackLoader: "style-loader",
+                    fallback: "style-loader",
                     use: ['css-loader']
                 }) : ['style-loader','css-loader']
             }, {
