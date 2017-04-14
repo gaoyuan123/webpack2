@@ -105,7 +105,6 @@ module.exports = function (env) {
                     })]
                 }
             }),
-
             new webpack.LoaderOptionsPlugin({
                 test: /\.js$/, // may apply this only for some modules
                 options: {
