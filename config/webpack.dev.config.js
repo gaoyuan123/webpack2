@@ -17,21 +17,11 @@ const projectConfig = require('./project.config');
 //const styleReg = /<link.+href=[\"|\']([^\?|\s]+)\??.*[\"|\'].*>/ig;
 
 const srcPath = path.resolve(projectConfig.srcPath);
-console.log('-----------------------' + JSON.stringify(projectConfig.externals))
+
 module.exports = function (env) {
     env = env || {};
     console.log('=============================================');
     console.log('cli options:' + JSON.stringify(env));
-    const resInline = env.resinline;
-    const isProd = env.prod;
-    const isDev = !isProd;
-
-    const entryConfig = {
-        inline: { // inline or not for index chunk
-            js: !!resInline,
-            css: !!resInline
-        }
-    }
 
     const htmlPlugins = [];
     Object.keys(projectConfig.entry).forEach(function (entryName) {
@@ -43,7 +33,7 @@ module.exports = function (env) {
             'libs/zepto': null,
         };
         chunks[projectConfig.commonEntry] = null;
-        chunks[entryName] = entryConfig;
+        chunks[entryName] = null;
         //加载html生成插件
         htmlPlugins.push(new HtmlResWebpackPlugin({
             filename: entryName + '.html',
@@ -58,7 +48,7 @@ module.exports = function (env) {
         context: srcPath,
         entry: projectConfig.entry,
         output: {
-            path: path.resolve(projectConfig.buildPath, resInline ? 'inline' : 'link'),
+            path: path.resolve(projectConfig.buildPath),
             publicPath: projectConfig.publicPath,
             filename: '[name].js',
             chunkFilename: 'chunk/[name].chunk.js',
@@ -77,7 +67,7 @@ module.exports = function (env) {
             new CommonsChunkPlugin({
                 name: projectConfig.commonEntry,
                 //number|Infinity|function(module, count) -> boolean
-                minChunks: isDev ? 2 : Infinity
+                minChunks: 2
             }),
             //copy libs
             new CopyWebpackPlugin([{

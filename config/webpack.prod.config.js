@@ -182,13 +182,6 @@ module.exports = function (env) {
                         limit: 8192,
                         name: '[path][name].[hash:8].[ext]'
                     }
-                }, {
-                    loader: 'image-webpack-loader',
-                    options: {
-                        bypassOnDebug: true,
-                        optimizationLevel: 5,
-                        interlaced: false
-                    }
                 }]
             }]
         }
