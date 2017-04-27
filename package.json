@@ -10,8 +10,8 @@
   "main": "",
   "scripts": {
     "start": "webpack-dev-server --hot  --no-info --host 0.0.0.0 --port 8000 --config config/webpack.dev.config.js",
-    "start-profile": "webpack-dev-server --hot  --profile --host 0.0.0.0 --port 8000 --config config/webpack.dev.config.js",
-    "build": "webpack --progress -p --env.resinline --env.prod  --config config/webpack.prod.config.js && webpack --progress -p  --env.prod --config config/webpack.prod.config.js",
+    "start-profile": "webpack-dev-server --hot --profile --host 0.0.0.0 --port 8000 --config config/webpack.dev.config.js",
+    "build": "webpack --progress -p --env.resinline --config config/webpack.prod.config.js && webpack --progress -p --config config/webpack.prod.config.js",
     "server": "http-server ./build -o"
   },
   "author": {
