@@ -9,9 +9,9 @@
   "license": "MIT",
   "main": "",
   "scripts": {
-    "start": "webpack-dev-server --hot  --no-info --host 0.0.0.0 --port 8000",
-    "start-profile": "webpack-dev-server --hot  --profile --host 0.0.0.0 --port 8000",
-    "build": "webpack --progress -p --env.resinline --env.prod && webpack --progress -p  --env.prod",
+    "start": "webpack-dev-server --hot  --no-info --host 0.0.0.0 --port 8000 --config config/webpack.dev.config.js",
+    "start-profile": "webpack-dev-server --hot  --profile --host 0.0.0.0 --port 8000 --config config/webpack.dev.config.js",
+    "build": "webpack --progress -p --env.resinline --env.prod  --config config/webpack.prod.config.js && webpack --progress -p  --env.prod --config config/webpack.prod.config.js",
     "server": "http-server ./build -o"
   },
   "author": {
@@ -26,13 +26,12 @@
   "devDependencies": {
     "assets-webpack-plugin": "^3.5.0",
     "autoprefixer": "^6.5.1",
-    "babel-core": "^6.17.0",
-    "babel-loader": "^6.2.5",
-    "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-es2015-webpack": "^6.4.3",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
     "copy-webpack-plugin-hash": "*",
-    "css-loader": "^0.25.0",
+    "css-loader": "^0.28.0",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.9.0",
     "glob": "^7.1.1",
@@ -51,5 +50,7 @@
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "babel-runtime": "^6.23.0"
+  }
 }
